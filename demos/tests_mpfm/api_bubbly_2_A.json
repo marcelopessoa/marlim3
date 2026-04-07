@@ -1,0 +1,33 @@
+{
+  "nome_caso": "API-BUBBLY-2-A",
+  "descricao": "Bubbly-2 (GVF ~20%, WLR ~40%) - Nominal",
+  "geometria": {
+    "comprimento_m": 100.0,
+    "diametro_interno_m": 0.1,
+    "inclinacao_graus": 90.0,
+    "rugosidade_m": 4.5e-05
+  },
+  "malha": {
+    "numero_celulas": 50
+  },
+  "condicoes_iniciais": {
+    "pressao_base_Pa": 5000000.0,
+    "temperatura_C": 45.0
+  },
+  "fontes": [
+    {
+      "posicao_no": 0,
+      "tipo": "massica",
+      "vazao_gas_kg_s": 0.5,
+      "vazao_oleo_kg_s": 20.4,
+      "vazao_agua_kg_s": 16.0
+    }
+  ],
+  "condicoes_contorno": [
+    {
+      "posicao_no": -1,
+      "tipo": "pressao",
+      "valor_Pa": 4800000.0
+    }
+  ]
+}

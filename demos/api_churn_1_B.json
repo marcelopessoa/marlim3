@@ -1,0 +1,33 @@
+{
+  "nome_caso": "API-CHURN-1-B",
+  "descricao": "Churn-1 (GVF ~55%, WLR ~50%) - Alta",
+  "geometria": {
+    "comprimento_m": 100.0,
+    "diametro_interno_m": 0.1,
+    "inclinacao_graus": 90.0,
+    "rugosidade_m": 4.5e-05
+  },
+  "malha": {
+    "numero_celulas": 50
+  },
+  "condicoes_iniciais": {
+    "pressao_base_Pa": 5000000.0,
+    "temperatura_C": 45.0
+  },
+  "fontes": [
+    {
+      "posicao_no": 0,
+      "tipo": "massica",
+      "vazao_gas_kg_s": 2.76,
+      "vazao_oleo_kg_s": 19.12,
+      "vazao_agua_kg_s": 22.5
+    }
+  ],
+  "condicoes_contorno": [
+    {
+      "posicao_no": -1,
+      "tipo": "pressao",
+      "valor_Pa": 4800000.0
+    }
+  ]
+}
