@@ -16,6 +16,10 @@ obj/
 modules/
 target/
 
+# Desktop application artifacts
+*.dmg
+*.sha256
+
 # Executaveis/artefatos compilados
 src/Marlim3
 marlim3/Marlim3*
@@ -40,6 +44,7 @@ pip-log.txt
 pip-delete-this-directory.txt
 *.manifest
 *.spec
+!marlim3_desktop/packaging/*.spec
 
 # Python cache, testes e tipagem
 __pycache__/
@@ -74,6 +79,7 @@ env.bak/
 venv.bak/
 config.local.*
 .python-version
+CMakeUserPresets.json
 
 # Ferramentas Python
 profile_default/
@@ -83,6 +89,7 @@ celerybeat-schedule
 .spyderproject
 .spyproject
 .ropeproject
+marlim-batch-mr2/
 
 # Logs, temporarios e backup
 *.log
@@ -93,6 +100,7 @@ tmp/
 *.tmp
 *.bak
 *.backup
+output/
 
 # Notebooks
 .ipynb_checkpoints/
@@ -137,13 +145,18 @@ Icon
 
 # Dados e resultados de simulacao
 *.dat
+*.snp
 *.p
 saida_testes/
+regression_output/
 *marlim3_resultados*
 *resultados*
 *RedeInterna*
 *marlim3_model.json*
+*marlim3_model.mr3*
 *marlim3_rede.json*
+*marlim3_rede.rede*
+*mvm
 
 # Versionamento interno
 versao.h

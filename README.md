@@ -1,12 +1,10 @@
 <h1 align="center">
-<img src="img/logo_marlim3.svg" alt="drawing" width="300"/>
+<img src="assets/branding/logo.svg" alt="Marlim3 logo" width="300"/>
 
 </h1><br>
 
 `Marlim3` is a 1D multiphase flow simulator developed by Petrobras.
- 
-The types of simulations offered by `Marlim3` include:
- 
+  
 ## Core capabilities (steady-state and transient)
 
 - **Production wells**
@@ -34,26 +32,227 @@ Install `Marlim3` as a Python package:
 pip install marlim3
 ```
 
-### Option 2: Use the executable directly
+On supported platforms, the first package import downloads the matching native
+executable from the GitHub Release when it is not already present. No compiler
+is required for the published Linux x64, Windows x64, and macOS Apple Silicon
+executables.
 
-You can download the `Marlim3` executable for Linux or Windows from the Releases section on GitHub. This standalone executable allows you to run simulations directly from the terminal, without the need to install the Python package. Detailed instructions are provided below.
+### Option 2: Download the desktop application
+
+Each tagged release provides a standalone desktop application containing the
+Streamlit GUI, its Python runtime and dependencies, and the native Marlim3
+simulation engine:
+
+| Platform | Release asset |
+|----------|---------------|
+| Linux x64 | `Marlim3-desktop-linux-x64` |
+| Windows x64 | `Marlim3-desktop-windows-x64.exe` |
+| macOS Apple Silicon | `Marlim3-desktop-macos-arm64.dmg` |
+
+Download the matching asset from the GitHub Releases page and run it. No Python
+installation or compiler is required. The Linux desktop application requires
+only glibc 2.34 or newer from the operating system.
+
+### Option 3: Use the command-line executable
+
+You can also download the native `Marlim3` executable for Linux, Windows, or
+macOS from the GitHub Releases page. This smaller standalone executable runs
+simulations directly from a terminal without installing the Python package.
+
+### Option 4: Developer setup (uv)
+
+For development, use [uv](https://docs.astral.sh/uv/) to manage the Python environment and dependencies.
+
+**Step 1 — Install dependencies and the Python package:**
+
+```bash
+uv sync --locked --group dev
+```
+
+This creates a `.venv` with Python 3.12+, installs all dev tools (pytest, flake8, jupyter, etc.), and installs `marlim3` in editable mode. After this step you can already use `import marlim3` in your scripts:
+
+```bash
+uv run python -c "import marlim3; print(marlim3.__version__)"
+```
+
+**Step 2 — Build and register the C++/Fortran executable** (required to run simulations):
+
+See [Compilation](#compilation) below. The CMake build automatically copies the executable into `marlim3/` after each successful build (via a `POST_BUILD` step), so no manual copy is needed. Then run:
+
+```bash
+MARLIM3_SKIP_BUILD=1 uv sync --locked
+```
+
+`MARLIM3_SKIP_BUILD=1` skips local CMake compilation. Set `MARLIM3_SKIP_EXECUTABLE_RESOLUTION=1` only when an import must not resolve or download the executable.
 
 ## Usage
 
-### Option 1: Python Package
+### Option 1: Desktop Application
 
-Use `Marlim3` as a Python library in your scripts:
+The desktop application starts the Streamlit server locally on `127.0.0.1` and
+renders it in an embedded Qt WebEngine desktop window. The packaged application
+includes Qt and its Chromium runtime, so it does not depend on an installed web
+browser or open the interface in the system browser. Simulation data remains on
+the local machine. The window opens maximized with the Marlim3 logo as its
+application icon. Closing the window with the title-bar `X` shuts down the local
+Streamlit process tree and releases its dynamically allocated port.
+
+#### Linux
+
+```bash
+chmod +x Marlim3-desktop-linux-x64
+./Marlim3-desktop-linux-x64
+```
+
+The Linux desktop executable is a self-contained ELF binary. Its only system
+runtime requirement is glibc 2.34 or newer.
+
+#### Windows
+
+Double-click `Marlim3-desktop-windows-x64.exe`.
+
+#### macOS
+
+Open `Marlim3-desktop-macos-arm64.dmg`, then drag `Marlim3.app` to the
+`Applications` folder. The current macOS release targets Apple Silicon
+(`arm64`). A signed and notarized release opens normally through Gatekeeper.
+Unsigned development or fork builds may require the user to explicitly allow
+the application: try to open it once, then go to **System Settings** →
+**Privacy & Security** → **Open Anyway**.
+
+SHA-256 checksum files are published alongside every desktop artifact.
+
+Developers can build the standalone application for the current operating
+system with:
+
+```bash
+uv run python -m marlim3_desktop.build
+```
+
+The script detects the platform, builds the native engine, installs the desktop
+dependencies, and writes one release-named artifact to `dist/`.
+
+### Option 2: Python Package
+
+Use `Marlim3` as a Python library in your scripts or notebooks.
+
+#### GUI
+
+Marlim3 also includes a **Streamlit-based GUI** for interactively building inputs, running simulations, and visualizing results in the browser.
+
+From a local clone:
+
+```bash
+uv sync --group gui
+uv run streamlit run gui/app.py
+```
+
+The GUI auto-detects an executable from `build/` or `marlim3/` under the repository root. If neither is available, provide the executable path manually in the app.
+
+The GUI provides forms for defining fluids, geometry, boundary conditions, and output variables, launches simulations, and displays profile plots — all in the browser.
+
+#### Scripting
+
+For automated workflows, parametric studies, or integration with other tools, use the Python API directly:
+
+```python
+import numpy as np
+import marlim3
+
+branch = marlim3.Branch()
+
+# 1. Production fluid (black-oil)
+branch.productionFluid = [{
+    "id": 0,
+    "api": 32,
+    "gor": 100,
+    "gasDensity": 0.7,
+    "bsw": 0.0,
+}]
+
+# 2. Material (steel)
+branch.material = [{
+    "id": 0,
+    "type": 0,
+    "conductivity": 58,       # W/m.K
+    "specificHeat": 480,      # J/kg.K
+    "rho": 7850,              # kg/m3
+}]
+
+# 3. Cross-section (10" ID, single steel layer)
+branch.crossSection = [{
+    "id": 0,
+    "innerDiameter": 10 * 0.0254,  # m
+    "roughness": 0.183e-3,          # m
+    "layers": [{"materialId": 0, "layerMeasurementType": "THICKNESS", "thickness": 0.0254}],
+}]
+
+# 4. Pipe (2500 m horizontal pipeline, 20 cells)
+n_cells = 20
+total_length = 2500  # m
+branch.productionPipe = [{
+    "id": 0,
+    "crossSectionId": 0,
+    "environment": 2,  # atmosphere
+    "angle": 0,        # rad (0 = horizontal)
+    "discretization": [{"numCells": n_cells, "length": total_length / n_cells}],
+    "initialConditions": {
+        "measuredPosition": [0, 1],
+        "ambientTemp": [40, 20],   # degC
+        "ambientVel": [0.5, 0.5],  # m/s
+    },
+}]
+
+# 5. Boundary conditions
+branch.liquidSource = [{
+    "id": 0,
+    "prodFluidId": 0,
+    "measuredLength": 0.1,
+    "time": [0],
+    "liquidFlowRate": [1500],  # sm3/d
+    "temperature": [40],       # degC
+}]
+branch.separator = {"time": [0], "pressure": [2]}  # kgf/cm2
+
+# 6. Output specification
+branch.productionProfile = {
+    "time": [0],
+    "pressure": True,
+    "temperature": True,
+    "holdup": True,
+    "flowPattern": True,
+    "frictionPressureGradient": True,
+    "hydrostaticPressureGradient": True,
+}
+
+# 7. Simulate and plot
+branch.simulate()
+branch.plot_profiles()
+```
+
+The Python API is **fully bilingual** — you can use Portuguese or English interchangeably:
 
 ```python
 import marlim3
 
-# Your simulation code here
-# Example: configure and run simulations programmatically
+# Build a model entirely in Portuguese
+tramo = marlim3.Tramo()
+tramo.sistema = "PROD"
+tramo.fluidosProducao = [{"id": 0, "api": 30, "rgo": 100, "densidadeGas": 0.7, "bsw": 0.0}]
+tramo.secaoTransversal = [{"id": 0, "diametroInterno": 0.254, "rugosidade": 1.83e-4,
+                           "camadas": [{"idMaterial": 0, "tipoMedicaoCamada": "ESPESSURA", "espessura": 0.0254}]}]
+
+# Nested access also works in both languages
+tramo.fluidosProducao[0]["densidadeGas"]  # → 0.7
+tramo.productionFluid[0]["gasDensity"]    # → 0.7 (same data)
+
+# Export in Portuguese
+tramo.to_json("modelo", language='pt')
 ```
 
-For examples, refer to the tutorials available in the `docs` folder.
+See [Bilingual Support](docs/translations.md) for details. For examples, refer to the tutorials in `docs/`.
 
-### Option 2: Command-Line Executable
+### Option 3: Command-Line Executable
 
 Run `Marlim3` directly from the terminal using the compiled executable available in the Releases section on GitHub.
 
@@ -109,16 +308,69 @@ Compilation is only necessary if you need to rebuild the executable from source.
 
 - GCC/G++ >= 9.0
 - GFortran >= 9.0
+- CMake >= 3.16
 
 ### Build the executable
 
+The project uses [CMake presets](CMakePresets.json). Available presets:
+
+| Preset | Platform | Description |
+|--------|----------|-------------|
+| `gcc-release` / `gcc-debug` | Linux / macOS | GCC portable build with GNU runtime linking configured by CMake |
+| `mingw-release` / `mingw-debug` | Windows | MinGW portable build with full static linking |
+| `clang-release` / `clang-debug` | Linux / macOS | Clang 20 + GFortran portable build |
+
+Release assets are built and tested for Linux x64, Windows x64, and macOS ARM64.
+Linux, Windows, and macOS ARM64 release executables are built so end users do not need GCC runtime libraries installed.
+
+#### Linux
+
 ```bash
-cd src
-make clean all
+cmake --preset gcc-release
+cmake --build --preset gcc-release -j$(nproc)
+```
+#### MacOS - Apple
+
+On macOS, install Homebrew GCC and CMake before building locally:
+
+```bash
+brew install gcc cmake
+cmake --preset gcc-release
+cmake --build --preset gcc-release -j$(sysctl -n hw.ncpu)
 ```
 
-If you wish to use the new executable with the Python package, copy the generated file to the `marlim3` directory and install it locally using pip.
+#### Windows (MSYS2 / MinGW64)
+
+Ensure `g++` and `gfortran` are in your PATH (e.g., via [MSYS2](https://www.msys2.org/) with the `mingw-w64-x86_64-gcc` and `mingw-w64-x86_64-gcc-fortran` packages).
+
+```bash
+cmake --preset mingw-release
+cmake --build --preset mingw-release -j%NUMBER_OF_PROCESSORS%
+```
+
+The resulting `build/Marlim3.exe` is fully statically linked and does not require external DLLs.
+
+The compiled executable is placed at `build/Marlim3` on Linux and macOS, or
+`build/Marlim3.exe` on Windows.
+
+A CMake `POST_BUILD` step automatically copies the executable to `marlim3/` after each successful build, so the Python package always picks up the latest binary. No manual copy is needed.
+
+Then activate the package locally (skipping recompilation):
+
+```bash
+MARLIM3_SKIP_BUILD=1 uv sync --locked
+```
+
+`MARLIM3_SKIP_BUILD=1` skips local CMake compilation; installed packages can still download the release executable on import.
+
+### Run tests
+
+```bash
+uv run pytest tests/ -v
+```
 
 ## Note
 
 Several resources and portions of the source code are currently written in Portuguese. We plan to gradually translate all content into English.
+
+The Python API is fully bilingual (EN/PT) — see [docs/translations.md](docs/translations.md).

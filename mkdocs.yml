@@ -1,0 +1,94 @@
+site_name: Marlim3 Documentation
+site_description: User documentation for the Marlim3 multiphase flow simulator
+site_author: Petrobras
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: cyan
+      accent: orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: cyan
+      accent: orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - toc.integrate
+    - search.highlight
+
+nav:
+  - Home: index.md
+  - Tutorials:
+    - Overview: tutorials/index.md
+    - Horizontal vs Vertical: tutorials/1-horizontal_vertical_comparison.ipynb
+    - Nodal Analysis: tutorials/2-nodal_analysis.ipynb
+    - Gas Lift: tutorials/3-gas_lift.ipynb
+    - Black-Box Correlations: tutorials/4_black_box_correlations.ipynb
+    - Temperature Pulse: tutorials/5_temperature_pulse.ipynb
+  - Single-Branch Model Reference:
+    - Overview: single-branch-model-reference/index.md
+    - Fluids: single-branch-model-reference/fluids.md
+    - Materials: single-branch-model-reference/materials.md
+    - Cross Sections: single-branch-model-reference/cross-sections.md
+    - Rock Formation: single-branch-model-reference/rock-formation.md
+    - Pipes: single-branch-model-reference/pipes.md
+    - Accessories: single-branch-model-reference/accessories.md
+    - Boundary Conditions: single-branch-model-reference/boundary-conditions.md
+    - Time: single-branch-model-reference/time.md
+    - General: single-branch-model-reference/general.md
+    - Results: single-branch-model-reference/results.md
+    - JSON Schema: single-branch-model-reference/json-schema.md
+  - Theoretical Reference:
+    - Overview: theoretical-reference/index.md
+    - Mass & Momentum Balances: theoretical-reference/mass-momentum-balances.md
+    - Energy Balance: theoretical-reference/energy-balance.md
+    - Discretization: theoretical-reference/discretization.md
+  - Developer Guide:
+    - Overview: dev-guide/index.md
+    - Num4Main — Main Entry Point: dev-guide/num4main.md
+    - Core Domain Classes: dev-guide/core-domain-classes.md
+    - Input Parsing: dev-guide/input-parsing.md
+    - Steady-State Tramo: dev-guide/steady-state-tramo.md
+    - Transient Solver: dev-guide/transient-solver.md
+    - Network Simulation: dev-guide/network-simulation.md
+    - Fluid Thermodynamics: dev-guide/fluid-thermodynamics.md
+    - Heat Transfer: dev-guide/heat-transfer.md
+    - Injection Well: dev-guide/injection-well.md
+    - Natural Convection: dev-guide/natural-convection.md
+    - Sensitivity Analysis: dev-guide/sensitivity-analysis.md
+    - Embedded Solvers: dev-guide/embedded-solvers.md
+    - Translations: dev-guide/translations.md
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+markdown_extensions:
+  - admonition
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+  - mkdocs-jupyter:
+      execute: false
+      include_source: true
+      kernel_name: python3
+
