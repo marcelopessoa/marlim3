@@ -8214,6 +8214,7 @@ void leituraAPparalelo(string nomeArquivoAP, string nomeArquivoLog, tipoValidaca
     string tmpAP = saidaAP.str();
     ofstream escreveAP(tmpAP.c_str(), ios_base::out);
     escreveAP << "relatorio de falhas da Analise Parametrica para um Tramo " << endl;
+    escreveAP << "Numero de combinacoes da Analise Parametrica "<< analisePara.nVariaveis<< endl;
     escreveAP.close();
     int indfalha[analisePara.nVariaveis];
     sistem1.kimpT = 1;
@@ -8241,6 +8242,7 @@ void leituraAPparalelo(string nomeArquivoAP, string nomeArquivoLog, tipoValidaca
     vg1dTramo = new varGlob1D[analisePara.nVariaveis];
     for (int iSeq = 0; iSeq < analisePara.nVariaveis; iSeq++)vg1dTramo[iSeq] = (*sistem1.vg1dSP);
     for (int iSeq = 0; iSeq < analisePara.nVariaveis; iSeq++) {
+    	indfalha[iSeq]=0;
         vg1dTramo[iSeq].sequenciaAP = iSeq;
         string nomeArquivoLogAP = nomeArquivoLog;
         nomeArquivoLogAP.erase(nomeArquivoLogAP.size() - 4);
@@ -8841,6 +8843,7 @@ void leituraAP(string nomeArquivoAP, SProd &sistem1) {
     string tmpAP = saidaAP.str();
     ofstream escreveAP(tmpAP.c_str(), ios_base::out);
     escreveAP << "relatório de falhas da Analise Parametrica para um Tramo " << endl;
+    escreveAP << "Numero de combinacoes da Analise Parametrica "<< analisePara.nVariaveis<< endl;
     escreveAP.close();
     double falha = 0.;
     for (int iSeq = 0; iSeq < analisePara.nVariaveis; iSeq++) { // laco onde e calculado o permanente de cada combinacao
@@ -12239,7 +12242,7 @@ double cicloRedeInj(SProd *malha, Rede &arqRede, Vcr<int> &inativo, int indativo
                                 qlmistStd += (Qcomp[k] * malha[i].celula[0].fluicol.MasEspFlu(pres, temp[k]) / malha[i].celula[0].fluicol.MasEspFlu(1.001, 15.));
                             } else {
                                 Mgas[k] = malha[ind].celula[fim].MC - malha[ind].celula[fim].Mliqini;
-                                Qliq[k] = malha[ind].celula[fim + 1].QG;
+                                Qliq[k]=Qgas[k] = malha[ind].celula[fim + 1].QG;
                                 Qcomp[k] = 0.;
                                 cpmist += (Mgas[k] * cpl[k]);
                                 tempmist += (Mgas[k] * cpl[k]) * temp[k];

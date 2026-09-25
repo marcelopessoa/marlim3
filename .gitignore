@@ -161,3 +161,7 @@ regression_output/
 # Versionamento interno
 versao.h
 versao.h.bak
+*.code-workspace
+
+# Self-hosted runners
+actions-runner
